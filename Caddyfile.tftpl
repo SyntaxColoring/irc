@@ -1,0 +1,11 @@
+{
+	email ${email}
+
+	%{~ if tls_staging ~}
+	acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+	%{~ endif ~}
+}
+
+${host}
+
+reverse_proxy localhost:9000
