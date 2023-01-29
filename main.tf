@@ -30,17 +30,11 @@ resource "aws_instance" "main" {
 
   key_name = aws_key_pair.main.key_name
 
-  # TODO:
-  # Modifying this appears to recreate the resource,
-  # which gives it a new IP and even a new DNS name.
-  # Figure out how to get this to propagate to our DNS.
-  # https://github.com/hashicorp/terraform-provider-aws/issues/6781
-  # https://github.com/hashicorp/terraform-provider-aws/issues/23315
-  #
-  # TODO: This is a race condition. The mount target will probably not be ready
-  # by the time this script runs.
-  user_data                   = data.cloudinit_config.main.rendered
-  user_data_replace_on_change = true
+  user_data = data.cloudinit_config.main.rendered
+  # Hack: Allow refactors to user_data without having to recreate the instance.
+  # But if we change something that matters, we have to remember to recreate
+  # it manually.
+  user_data_replace_on_change = false
 }
 
 
