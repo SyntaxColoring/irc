@@ -3,5 +3,5 @@ output "public_ipv4" {
 }
 
 output "public_ipv6" {
-  value = "todo"
+  value = aws_instance.main.ipv6_addresses[0]
 }

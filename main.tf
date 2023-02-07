@@ -25,11 +25,67 @@ data "aws_ami" "main" {
 }
 
 
+resource "aws_vpc" "main" {
+  # Pick an arbitrary block of internal IPv4 addresses.
+  cidr_block = "192.168.0.0/16"
+
+  # Get AWS to assign us an arbitrary block of public IPv6 addresses.
+  assign_generated_ipv6_cidr_block = true
+}
+
+
+# Put a single monolihic subnet in the VPC.
+resource "aws_subnet" "main" {
+  vpc_id = aws_vpc.main.id
+
+  # Assign all of the VPC's IPv4 addresses to this one subnet.
+  # This is arbitrary since there will only be one instance in the subnet, anyway.
+  cidr_block = aws_vpc.main.cidr_block
+
+  # AWS requires subnet IPv6 addresses to be assigned in /64 blocks.
+  # Get one such block from /56 block that AWS will have assigned to the VPC.
+  ipv6_cidr_block = cidrsubnet(
+    aws_vpc.main.ipv6_cidr_block,
+    64 - 56,
+    0
+  )
+}
+
+
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+}
+
+
+resource "aws_route_table" "main" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = local.any_ipv4
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  route {
+    ipv6_cidr_block = local.any_ipv6
+    gateway_id      = aws_internet_gateway.main.id
+  }
+}
+
+
+resource "aws_route_table_association" "main" {
+  subnet_id      = aws_subnet.main.id
+  route_table_id = aws_route_table.main.id
+}
+
+
 resource "aws_instance" "main" {
   ami           = data.aws_ami.main.id
   instance_type = local.instance_type
 
-  security_groups = [aws_security_group.main.name]
+  subnet_id              = aws_subnet.main.id
+  vpc_security_group_ids = [aws_security_group.main.id]
+
+  ipv6_address_count = 1
 
   key_name = aws_key_pair.main.key_name
 
@@ -118,6 +174,8 @@ resource "aws_key_pair" "main" {
 
 
 resource "aws_security_group" "main" {
+  vpc_id = aws_vpc.main.id
+
   ingress {
     protocol    = "icmp"
     from_port   = -1 # All ICMP types.
@@ -173,5 +231,6 @@ locals {
 
 
 resource "aws_eip" "main" {
-  instance = aws_instance.main.id
+  instance   = aws_instance.main.id
+  depends_on = [aws_internet_gateway.main]
 }
