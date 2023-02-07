@@ -53,7 +53,7 @@ data "cloudinit_config" "main" {
             # the whole instance. A stop-start would be okay.
             path = "/etc/caddy/Caddyfile"
             content = templatefile(
-              "${path.module}/Caddyfile.tftpl",
+              "${path.module}/files/Caddyfile.tftpl",
               {
                 host        = var.host,
                 email       = var.email,
@@ -65,7 +65,7 @@ data "cloudinit_config" "main" {
             # TODO: Find a way to set up good defaults for thelounge config,
             # like reverseProxy=true.
             path    = "/etc/systemd/system/thelounge.service"
-            content = file("${path.module}/thelounge.service")
+            content = file("${path.module}/files/thelounge.service")
           }
         ]
 
@@ -77,13 +77,13 @@ data "cloudinit_config" "main" {
             # Adapted from https://caddyserver.com/docs/install#debian-ubuntu-raspbian.
             caddy = {
               source = "deb [signed-by=$KEY_FILE] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main"
-              key    = file("${path.module}/caddy_public_key.gpg")
+              key    = file("${path.module}/files/caddy_public_key.gpg")
             }
 
             # Adapted from https://docs.docker.com/engine/install/ubuntu/.
             docker = {
               source = "deb [signed-by=$KEY_FILE] https://download.docker.com/linux/ubuntu jammy stable"
-              key    = file("${path.module}/docker_public_key.gpg")
+              key    = file("${path.module}/files/docker_public_key.gpg")
             }
           }
         }
