@@ -5,6 +5,9 @@ locals {
 }
 
 
+# TODO: When Ubuntu updates their AMIs, this block will pick up the most recent
+# one automatically and prompt an instance replacement. This can be easy to miss
+# and can cause data loss. Figure out a way to make this safer.
 data "aws_ami" "main" {
   owners = ["099720109477"] # Canonical
 
