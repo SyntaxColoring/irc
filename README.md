@@ -26,8 +26,8 @@ scp -r "$HOST_CONNECTION_OPTIONS:/var/opt/thelounge" thelounge_instance_files
 Inspect the files to make sure everything is there before you delete the instance.
 
 Note that we don't bother saving Caddy's data directory, for fear of screwing up file permissions on something.
-I think this is fine despite Caddy documentation cautioning not to treat those files as ephemeral.
-Let's Encrypt has a rate limit of 50 new certificates per domain per week, which we're unlikely to hit.
+This risks hitting Let's Encrypt's rate limit of 5 renewals per week.
+If this happens, Caddy should fall back to ZeroSSL automatically.
 
 
 # Upload config and data files
