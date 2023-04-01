@@ -1,9 +1,8 @@
 locals {
-  architecture           = "arm64"
-  instance_type          = "t4g.nano"
-  ami_owner              = "099720109477" # Canonical
-  ami_name               = "ubuntu-minimal/images/hvm-ssd/ubuntu-jammy-22.04-arm64-minimal-20230213"
-  thelounge_deb_download = "https://github.com/thelounge/thelounge/releases/download/v4.3.1/thelounge_4.3.1-2_all.deb"
+  architecture  = "arm64"
+  instance_type = "t4g.nano"
+  ami_owner     = "099720109477" # Canonical
+  ami_name      = "ubuntu-minimal/images/hvm-ssd/ubuntu-jammy-22.04-arm64-minimal-20230213"
 }
 
 
