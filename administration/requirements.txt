@@ -1,0 +1,4 @@
+ansible>=7.3.0,<8
+
+ec2instanceconnectcli>=1.0.3,<2
+boto3>=1.26.104,<2
