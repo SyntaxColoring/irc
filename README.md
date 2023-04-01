@@ -1,12 +1,16 @@
-# SSH host config (~/.ssh.config)
+# Setup
 
+```bash
+python3 -m venv administration/venv
+source administration/venv/activate
+pip install -r administration/requirements.txt
 ```
-host personal-thelounge
-	Hostname thelounge.marrone.nyc
-	IdentityFile ~/.ssh/id_personal_aws
-	User ubuntu
-	# Hack to allow us to replace the instance without having to modify the known_hosts file each time.
-	StrictHostKeyChecking no
+
+
+# Getting a shell
+
+```bash
+mssh ubuntu@$(terraform -chdir=../../.. output --raw thelounge_instance_id) --region us-east-1
 ```
 
 

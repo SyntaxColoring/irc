@@ -83,8 +83,6 @@ resource "aws_instance" "main" {
 
   ipv6_address_count = 1
 
-  key_name = aws_key_pair.main.key_name
-
   user_data = data.cloudinit_config.main.rendered
   # Hack: Allow refactors to user_data without having to recreate the instance.
   # But if we change something that matters, we have to remember to recreate
@@ -162,12 +160,6 @@ data "cloudinit_config" "main" {
     )
   }
 }
-
-
-resource "aws_key_pair" "main" {
-  public_key = var.public_key
-}
-
 
 resource "aws_security_group" "main" {
   vpc_id = aws_vpc.main.id
