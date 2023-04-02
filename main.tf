@@ -82,84 +82,8 @@ resource "aws_instance" "main" {
   vpc_security_group_ids = [aws_security_group.main.id]
 
   ipv6_address_count = 1
-
-  user_data = data.cloudinit_config.main.rendered
-  # Hack: Allow refactors to user_data without having to recreate the instance.
-  # But if we change something that matters, we have to remember to recreate
-  # it manually.
-  user_data_replace_on_change = false
 }
 
-
-data "cloudinit_config" "main" {
-  gzip          = false
-  base64_encode = false
-
-  part {
-    content_type = "text/cloud-config"
-    content = jsonencode(
-      {
-        write_files = [
-          {
-            # Ubuntu's service files for Caddy look for a default Caddyfile here.
-            # TODO: Find a way to allow modifying these without recreating
-            # the whole instance. A stop-start would be okay.
-            path = "/etc/caddy/Caddyfile"
-            content = templatefile(
-              "${path.module}/files/Caddyfile.tftpl",
-              {
-                host        = var.host,
-                email       = var.email,
-                tls_staging = var.tls_staging,
-              }
-            )
-          },
-          {
-            # TODO: Find a way to set up good defaults for thelounge config,
-            # like reverseProxy=true.
-            path    = "/etc/systemd/system/thelounge.service"
-            content = file("${path.module}/files/thelounge.service")
-          }
-        ]
-
-        apt = {
-          # TODO: Do we need this?
-          preserve_sources_list = true
-
-          sources = {
-            # Adapted from https://caddyserver.com/docs/install#debian-ubuntu-raspbian.
-            caddy = {
-              source = "deb [signed-by=$KEY_FILE] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main"
-              key    = file("${path.module}/files/caddy_public_key.gpg")
-            }
-
-            # Adapted from https://docs.docker.com/engine/install/ubuntu/.
-            docker = {
-              source = "deb [signed-by=$KEY_FILE] https://download.docker.com/linux/ubuntu jammy stable"
-              key    = file("${path.module}/files/docker_public_key.gpg")
-            }
-          }
-        }
-
-        packages = [
-          "caddy",
-
-          # We use Docker even though The Lounge provides a plain Ubuntu package
-          # because the plain Ubuntu package compiles SQLite at install time, which
-          # seems to bump up against our instance's memory limits.
-          "docker-ce",
-          "docker-ce-cli",
-          "containerd.io",
-        ]
-
-        runcmd = [
-          # Start thelounge.service on this boot and configure it to automatically start on subsequent boots.
-          ["systemctl", "enable", "--now", "--no-block", "thelounge"]
-        ]
-      }
-    )
-  }
-}
 
 resource "aws_security_group" "main" {
   vpc_id = aws_vpc.main.id
