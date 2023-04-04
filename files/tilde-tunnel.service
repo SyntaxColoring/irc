@@ -1,0 +1,17 @@
+[Unit]
+Description=Open a tunnel to Tilde Town's IRC
+After=network.target
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/ssh \
+    -i /etc/tilde_tunnel/private_key \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    -o ExitOnForwardFailure=yes \
+    -N \
+    -L localhost:6667:localhost:6667 \
+    maxpm@tilde.town
+
+[Install]
+WantedBy=multi-user.target

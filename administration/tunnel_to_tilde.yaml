@@ -1,0 +1,49 @@
+- name: Generate a new SSH key pair
+  hosts: localhost
+  tasks:
+    - name: Generate a new SSH key pair
+      community.crypto.openssh_keypair:
+        comment: SSH tunnel to Tilde Town's IRC
+        path: tunnel
+
+- name: Authorize the key on Tilde Town
+  hosts: tilde_town
+  tasks:
+    - name: Authorize the public key on Tilde Town
+      # We use the blockinfile module instead of the authorized_key module
+      # to make sure we remove old authorizations.
+      ansible.builtin.blockinfile:
+        path: ~/.ssh/authorized_keys
+        # Restrict the authorization to just port-forwarding to mitigate the damage
+        # in case someone manages to steal the private key.
+        block: restrict,command="/sbin/nologin",port-forwarding {{ lookup('file', 'tunnel.pub') }}
+        marker: "## {mark} ANSIBLE MANAGED BLOCK, DO NOT EDIT MANUALLY ##"
+        # Tilde Town puts the initial signup authorization in authorized_keys2,
+        # so this might be the first thing that creates authorized_keys.
+        # Make sure we restrict the permissions.
+        create: true
+        mode: u=rw,g=,o=
+
+- name: Tunnel to Tilde Town from the The Lounge host
+  hosts: thelounge
+  become: true
+  tasks:
+    - name: Create a folder on the The Lounge host to hold the private key
+      ansible.builtin.file:
+        path: /etc/tilde_tunnel
+        state: directory
+        mode: u=rwx,g=,o=
+    - name: Upload the private key to the The Lounge host
+      ansible.builtin.copy:
+        src: tunnel
+        dest: /etc/tilde_tunnel/private_key
+        mode: u=rw,g=,o=
+    - name: Create a service file for the tunnel
+      ansible.builtin.copy:
+        src: ../files/tilde-tunnel.service
+        dest: /etc/systemd/system/
+    - name: Enable the tunnel service
+      ansible.builtin.systemd:
+        name: tilde-tunnel
+        enabled: true
+        state: started
