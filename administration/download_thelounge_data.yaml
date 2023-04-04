@@ -1,0 +1,29 @@
+- name: Download The Lounge data
+  hosts: thelounge
+  vars:
+    archive_name: thelounge_data_{{ ansible_date_time.iso8601 | replace(':', '-')}}.tar.gz
+  tasks:
+    # ansible.builtin.synchronize doesn't support our custom EC2 Instance Connect
+    # connection plugin, and ansible.builtin.fetch doesn't support recursive downloads,
+    # so we need to bundle the directory into an archive ourselves.
+    - block:
+        - name: Archive
+          become: true
+          community.general.archive:
+            path:
+              - /var/opt/thelounge/users
+              - /var/opt/thelounge/logs
+            dest: /tmp/{{ archive_name }}
+            mode: u=rw,g=,o=
+        - name: Download
+          become: true
+          ansible.builtin.fetch:
+            src: /tmp/{{ archive_name }}
+            dest: ./
+            flat: true
+      always:
+        - name: Delete temporary archive
+          become: true
+          ansible.builtin.file:
+            path: /tmp/{{ archive_name }}
+            state: absent

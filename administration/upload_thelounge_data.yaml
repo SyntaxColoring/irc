@@ -1,0 +1,41 @@
+- name: Upload The Lounge data
+  hosts: thelounge
+  tasks:
+    - name: Stop The Lounge
+      become: true
+      ansible.builtin.systemd:
+        name: thelounge
+        state: stopped
+    - name: Clear existing The Lounge users
+      become: true
+      ansible.builtin.file:
+        path: /var/opt/thelounge/users
+        state: absent
+    - name: Clear existing The Lounge logs
+      become: true
+      ansible.builtin.file:
+        path: /var/opt/thelounge/logs
+        state: absent
+    - name: Upload and extract logs and users from provided archive
+      become: true
+      ansible.builtin.unarchive:
+        src: "{{ thelounge_archive_source }}"
+        dest: /var/opt/thelounge
+        include:
+          - users
+          - logs
+    # The uploaded archive should have thelounge as the owner for all the files,
+    # and unarchiving it as root should preserve that,
+    # but make sure thelounge owns everything ourselves, just in case.
+    - name: Fix up ownership on extracted files
+      become: true
+      ansible.builtin.file:
+        path: /var/opt/thelounge
+        owner: thelounge
+        group: thelounge
+        recurse: true
+    - name: Start The Lounge
+      become: true
+      ansible.builtin.systemd:
+        name: thelounge
+        state: started
