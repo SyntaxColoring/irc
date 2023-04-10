@@ -40,7 +40,7 @@
         mode: u=rw,g=,o=
     - name: Create a service file for the tunnel
       ansible.builtin.copy:
-        src: ../files/tilde-tunnel.service
+        src: files/tilde-tunnel.service
         dest: /etc/systemd/system/
     - name: Enable the tunnel service
       ansible.builtin.systemd:

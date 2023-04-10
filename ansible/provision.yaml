@@ -35,7 +35,7 @@
       become: true
       block:
         - ansible.builtin.template:
-            src: ../files/Caddyfile.j2
+            src: files/Caddyfile.j2
             dest: /etc/caddy/Caddyfile
         - ansible.builtin.systemd:
             name: caddy
@@ -60,7 +60,7 @@
     - name: Create configuration file for The Lounge
       become: true
       ansible.builtin.copy:
-        src: ../files/config.js
+        src: files/config.js
         dest: /var/opt/thelounge/config.js
         owner: thelounge
         group: thelounge
@@ -69,7 +69,7 @@
       become: true
       block:
         - ansible.builtin.template:
-            src: ../files/thelounge.service.j2
+            src: files/thelounge.service.j2
             dest: /etc/systemd/system/thelounge.service
         - ansible.builtin.systemd:
             daemon_reload: true
