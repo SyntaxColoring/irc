@@ -1,5 +1,5 @@
 - name: Provision a new instance
-  hosts: all
+  hosts: thelounge
   tasks:
     - name: Add signing key for Caddy repository
       # Adapted from https://caddyserver.com/docs/install#debian-ubuntu-raspbian.
