@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -euo pipefail
+
+docker exec \
+    --interactive \
+    --tty \
+    --user $(id --user thelounge):$(id --group thelounge) \
+    thelounge \
+    "$@"

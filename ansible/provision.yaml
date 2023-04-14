@@ -73,6 +73,12 @@
             dest: /etc/systemd/system/thelounge.service
         - ansible.builtin.systemd:
             daemon_reload: true
+    - name: Install thelounge-docker-exec
+      become: true
+      ansible.builtin.copy:
+        src: files/thelounge-docker-exec
+        dest: /usr/local/bin/thelounge-docker-exec
+        mode: a+x
     - name: Enable and start The Lounge
       become: true
       ansible.builtin.systemd:
