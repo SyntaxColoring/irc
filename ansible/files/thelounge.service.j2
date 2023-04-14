@@ -17,7 +17,7 @@ ExecStart=docker run \
     --rm \
     --tty \
     --user {{ thelounge_user_result.uid }}:{{ thelounge_user_result.group }}\
-    --publish 9000:9000 \
+    --net=host \
     --volume /var/opt/thelounge:/var/opt/thelounge \
     thelounge/thelounge:4.3.1
 
