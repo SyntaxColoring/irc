@@ -1,26 +1,29 @@
 - name: Provision a new instance
   hosts: thelounge
   tasks:
+    # Adapted from https://caddyserver.com/docs/install#debian-ubuntu-raspbian.
     - name: Add signing key for Caddy repository
-      # Adapted from https://caddyserver.com/docs/install#debian-ubuntu-raspbian.
       become: true
-      block:
-        - ansible.builtin.get_url:
-            url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
-            dest: /etc/apt/keyrings/caddy.asc
-        - ansible.builtin.apt_repository:
-            repo: deb [signed-by=/etc/apt/keyrings/caddy.asc] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
+      ansible.builtin.get_url:
+        url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+        dest: /etc/apt/keyrings/caddy.asc
+        mode: u=rw,g=,o=
+    - name: Add Caddy repository
+      ansible.builtin.apt_repository:
+        repo: deb [signed-by=/etc/apt/keyrings/caddy.asc] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
+
+    # Adapted from https://docs.docker.com/engine/install/ubuntu/.
+    - name: Add signing key for Docker repository
+      become: true
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: u=rw,g=,o=
     - name: Add Docker repository
-      # Adapted from https://docs.docker.com/engine/install/ubuntu/.
       become: true
-      block:
-        - name: Add Docker repository - Download signing key
-          ansible.builtin.get_url:
-            url: https://download.docker.com/linux/ubuntu/gpg
-            dest: /etc/apt/keyrings/docker.asc
-        - name: Add Docker repository - 
-          ansible.builtin.apt_repository:
-            repo: deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu jammy stable
+      ansible.builtin.apt_repository:
+        repo: deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu jammy stable
+
     - name: Install Caddy and Docker
       become: true
       ansible.builtin.apt:
@@ -28,19 +31,21 @@
           - caddy
           # We use Docker even though The Lounge provides a plain Ubuntu package
           # because the plain Ubuntu package compiles SQLite at install time, which
-          # seems to bump up against our instance's memory limits.
+          # seems to bump up against a t4g-nano instance's memory limits.
           - docker-ce
           - docker-ce-cli
+
     - name: Configure Caddy
       become: true
-      block:
-        - ansible.builtin.template:
-            src: files/Caddyfile.j2
-            dest: /etc/caddy/Caddyfile
-        - ansible.builtin.systemd:
-            name: caddy
-            state: reloaded
-    - name: Create system user for The Lounge
+      ansible.builtin.template:
+        src: files/Caddyfile.j2
+        dest: /etc/caddy/Caddyfile
+        owner: caddy
+        group: caddy
+        mode: u=rw,g=rw,o=
+      notify: Reload Caddy
+
+    - name: Create a system user for The Lounge
       become: true
       ansible.builtin.user:
         name: thelounge
@@ -49,7 +54,8 @@
         shell: /usr/sbin/nologin
         password_lock: true
       register: thelounge_user_result
-    - name: Create state directory for The Lounge
+
+    - name: Create the state directory for The Lounge
       become: true
       ansible.builtin.file:
         path: /var/opt/thelounge
@@ -57,7 +63,18 @@
         owner: thelounge
         group: thelounge
         mode: u=rwx,g=,o=
-    - name: Create configuration file for The Lounge
+
+    - name: Install the service file for The Lounge
+      become: true
+      ansible.builtin.template:
+        src: files/thelounge.service.j2
+        dest: /etc/systemd/system/thelounge.service
+        mode: u=rw,g=,o=
+      notify:
+        - Reload service files
+        - Restart The Lounge
+
+    - name: Configure The Lounge
       become: true
       ansible.builtin.copy:
         src: files/config.js
@@ -65,23 +82,41 @@
         owner: thelounge
         group: thelounge
         mode: u=rw,g=,o=
-    - name: Install service file for The Lounge
-      become: true
-      block:
-        - ansible.builtin.template:
-            src: files/thelounge.service.j2
-            dest: /etc/systemd/system/thelounge.service
-        - ansible.builtin.systemd:
-            daemon_reload: true
+      notify: Restart The Lounge
+
     - name: Install thelounge-docker-exec
       become: true
       ansible.builtin.copy:
         src: files/thelounge-docker-exec
         dest: /usr/local/bin/thelounge-docker-exec
-        mode: a+x
+        mode: u=rwx,g=x,o=x
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
     - name: Enable and start The Lounge
       become: true
       ansible.builtin.systemd:
         name: thelounge
         enabled: true
+        # It's probably already started from when we configured it and then restarted it,
+        # but make sure it's started here anyway just in case.
         state: started
+
+  handlers:
+    - name: Reload service files
+      become: true
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Restart The Lounge
+      become: true
+      ansible.builtin.systemd:
+        name: thelounge
+        state: restarted
+
+    - name: Reload Caddy
+      become: true
+      ansible.builtin.systemd:
+        name: caddy
+        state: reloaded
