@@ -64,7 +64,6 @@
   handlers:
     - name: Reload the service file
       ansible.builtin.systemd:
-        name: tilde-tunnel
         daemon_reload: true
 
     - name: Restart the service
