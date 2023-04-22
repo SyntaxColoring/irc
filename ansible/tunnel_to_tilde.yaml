@@ -1,12 +1,13 @@
 - name: Generate a new SSH key pair
   hosts: localhost
   tasks:
-    - name: Generate a new SSH key pair
+    - name: Generate an SSH key pair
       community.crypto.openssh_keypair:
-        comment: SSH tunnel to Tilde Town's IRC
-        path: tunnel
+        path: tilde_tunnel_ssh_key
+        comment: SSH tunnel from The Lounge to Tilde Town, for IRC
+        mode: u=rw,g=,o=
 
-- name: Authorize the key on Tilde Town
+- name: Authorize the public key on Tilde Town
   hosts: tilde_town
   tasks:
     - name: Authorize the public key on Tilde Town
@@ -16,34 +17,57 @@
         path: ~/.ssh/authorized_keys
         # Restrict the authorization to just port-forwarding to mitigate the damage
         # in case someone manages to steal the private key.
-        block: restrict,command="/sbin/nologin",port-forwarding {{ lookup('file', 'tunnel.pub') }}
-        marker: "## {mark} ANSIBLE MANAGED BLOCK, DO NOT EDIT MANUALLY ##"
+        block: restrict,command="/sbin/nologin",port-forwarding {{ lookup('file', 'tilde_tunnel_ssh_key.pub') }}
+        marker: "## {mark} ANSIBLE MANAGED BLOCK FOR THELOUNGE TUNNEL ##"
         # Tilde Town puts the initial signup authorization in authorized_keys2,
         # so this might be the first thing that creates authorized_keys.
         # Make sure we restrict the permissions.
         create: true
         mode: u=rw,g=,o=
 
-- name: Tunnel to Tilde Town from the The Lounge host
+- name: Set up the tunnel on the Lounge server
   hosts: thelounge
   become: true
   tasks:
-    - name: Create a folder on the The Lounge host to hold the private key
+    - name: Create a folder to hold the private key
       ansible.builtin.file:
         path: /etc/tilde_tunnel
         state: directory
         mode: u=rwx,g=,o=
-    - name: Upload the private key to the The Lounge host
+
+    - name: Upload the private key
       ansible.builtin.copy:
-        src: tunnel
+        src: tilde_tunnel_ssh_key
         dest: /etc/tilde_tunnel/private_key
         mode: u=rw,g=,o=
-    - name: Create a service file for the tunnel
+      notify:
+        - Restart the service
+
+    - name: Create a service file
       ansible.builtin.copy:
         src: files/tilde-tunnel.service
         dest: /etc/systemd/system/
-    - name: Enable the tunnel service
+        mode: u=rw,g=,o=
+      notify:
+        - Reload the service file
+        - Restart the service
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
+    - name: Start and enable the service
       ansible.builtin.systemd:
         name: tilde-tunnel
-        enabled: true
         state: started
+        enabled: true
+
+  handlers:
+    - name: Reload the service file
+      ansible.builtin.systemd:
+        name: tilde-tunnel
+        daemon_reload: true
+
+    - name: Restart the service
+      ansible.builtin.systemd:
+        name: tilde-tunnel
+        state: restarted
