@@ -7,7 +7,7 @@
       ansible.builtin.get_url:
         url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
         dest: /etc/apt/keyrings/caddy.asc
-        mode: u=rw,g=,o=
+        mode: u=rw,g=r,o=r
     - name: Add Caddy repository
       ansible.builtin.apt_repository:
         repo: deb [signed-by=/etc/apt/keyrings/caddy.asc] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
@@ -18,7 +18,7 @@
       ansible.builtin.get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
         dest: /etc/apt/keyrings/docker.asc
-        mode: u=rw,g=,o=
+        mode: u=rw,g=r,o=r
     - name: Add Docker repository
       become: true
       ansible.builtin.apt_repository:
