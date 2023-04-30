@@ -1,6 +1,8 @@
 - name: Download The Lounge data
   hosts: thelounge
   vars:
+    # Replace ":" with "-" to avoid annoyances with tar when working with these files manually.
+    # tar treats ":" characters specially.
     archive_name: thelounge_data_{{ ansible_date_time.iso8601 | replace(':', '-')}}.tar.gz
   tasks:
     # ansible.builtin.synchronize doesn't support our custom EC2 Instance Connect
