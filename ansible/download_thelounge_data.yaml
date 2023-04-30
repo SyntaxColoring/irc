@@ -17,8 +17,16 @@
               - /var/opt/thelounge/logs
             dest: /tmp/{{ archive_name }}
             mode: u=rw,g=,o=
-        - name: Download
+        # Allow the download step to read the archive without needing `become: true`.
+        # This avoids an Ansible quirk where the download step would consume too much RAM.
+        # https://github.com/ansible/ansible/issues/31194
+        - name: Change the archive owner to prepare for download
           become: true
+          ansible.builtin.file:
+            path: /tmp/{{ archive_name }}
+            owner: "{{ ansible_facts.user_uid }}"
+            group: "{{ ansible_facts.user_gid }}"
+        - name: Download
           ansible.builtin.fetch:
             src: /tmp/{{ archive_name }}
             dest: ./
