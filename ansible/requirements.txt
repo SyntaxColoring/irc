@@ -1,4 +1,5 @@
 ansible>=7.3.0,<8
+ansible-lint<=6.14.6,<7
 
 ec2instanceconnectcli>=1.0.3,<2
 boto3>=1.26.104,<2
