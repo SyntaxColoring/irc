@@ -1,0 +1,4 @@
+Host <HOST>
+	User ubuntu
+	IdentityFile <PATH TO PRIVATE KEY>
+	ProxyCommand ~/.ssh/proxy-to-ec2.sh %r %h %p <EC2 INSTANCE ID> <AWS REGION> <PATH TO PUBLIC KEY>
