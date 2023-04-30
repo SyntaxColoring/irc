@@ -5,10 +5,16 @@
     # tar treats ":" characters specially.
     archive_name: thelounge_data_{{ ansible_date_time.iso8601 | replace(':', '-')}}.tar.gz
   tasks:
-    # ansible.builtin.synchronize doesn't support our custom EC2 Instance Connect
-    # connection plugin, and ansible.builtin.fetch doesn't support recursive downloads,
-    # so we need to bundle the directory into an archive ourselves.
-    - block:
+    - name: Archive and download
+      block:
+        - name: Stop The Lounge for safe archiving
+          become: true
+          ansible.builtin.systemd:
+            name: thelounge
+            state: stopped
+
+        # TODO: See if we can switch to the synchronize module instead of
+        # preparing this archive ourselves..
         - name: Archive
           become: true
           community.general.archive:
@@ -17,6 +23,7 @@
               - /var/opt/thelounge/logs
             dest: /tmp/{{ archive_name }}
             mode: u=rw,g=,o=
+
         # Allow the download step to read the archive without needing `become: true`.
         # This avoids an Ansible quirk where the download step would consume too much RAM.
         # https://github.com/ansible/ansible/issues/31194
@@ -26,14 +33,24 @@
             path: /tmp/{{ archive_name }}
             owner: "{{ ansible_facts.user_uid }}"
             group: "{{ ansible_facts.user_gid }}"
+
         - name: Download
           ansible.builtin.fetch:
             src: /tmp/{{ archive_name }}
             dest: ./
             flat: true
+
       always:
-        - name: Delete temporary archive
+        - name: Delete the temporary archive
+          # Delete the file as root because we don't know which user owns it,
+          # depending on which steps above failed, if any.
           become: true
           ansible.builtin.file:
             path: /tmp/{{ archive_name }}
             state: absent
+
+        - name: Start The Lounge back up
+          become: true
+          ansible.builtin.systemd:
+            name: thelounge
+            state: started
