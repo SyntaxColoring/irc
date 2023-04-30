@@ -1,8 +1,0 @@
-thelounge:
-  hosts:
-    thelounge.marrone.nyc:
-      ansible_connection: eci
-      # TODO: Derive instance ID from Terraform.
-      ansible_instance_id: i-005a70609bdadaf79
-      ansible_user: ubuntu
-      ansible_region: us-east-1
