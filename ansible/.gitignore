@@ -1,2 +1,6 @@
 venv/
 *.pyc
+
+thelounge_data*
+tilde_tunnel_ssh_key
+tilde_tunnel_ssh_key.pub
