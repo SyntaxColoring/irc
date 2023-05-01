@@ -47,7 +47,7 @@
       ansible.builtin.copy:
         src: files/tilde-tunnel.service
         dest: /etc/systemd/system/
-        mode: u=rw,g=,o=
+        mode: u=rw,g=r,o=r
       notify:
         - Reload the service file
         - Restart the service
