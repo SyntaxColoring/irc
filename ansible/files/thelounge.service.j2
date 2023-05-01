@@ -16,6 +16,7 @@ ExecStart=docker run \
     --name thelounge \
     --rm \
     --tty \
+    --pull=always \
     --user {{ thelounge_user_result.uid }}:{{ thelounge_user_result.group }}\
     --net=host \
     --volume /var/opt/thelounge:/var/opt/thelounge \
