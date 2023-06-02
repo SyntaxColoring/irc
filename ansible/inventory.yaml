@@ -1,0 +1,11 @@
+thelounge:
+  hosts:
+    thelounge.marrone.nyc:
+  vars:
+    ansible_ssh_pipelining: true
+    email: max@marrone.nyc
+    tls_staging: false
+
+tilde_town:
+  hosts:
+    tilde.town:

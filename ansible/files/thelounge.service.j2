@@ -22,6 +22,9 @@ ExecStart=docker run \
     --volume /var/opt/thelounge:/var/opt/thelounge \
     thelounge/thelounge:4.4.0
 
+Restart=on-failure
+StartLimitBurst=3
+StartLimitIntervalSec=10
 
 [Install]
 WantedBy=multi-user.target
