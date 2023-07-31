@@ -18,7 +18,7 @@ thelounge:
     thelounge.example.com:
   vars:
     ansible_ssh_pipelining: true
-   
+
     # Currently required.
     # Passed along to the certificate authority.
     email: you@example.com
@@ -47,20 +47,17 @@ This turns a bare Ubuntu server into a useful server for The Lounge.
 * Installs The Lounge and configures it as a system service.
 * Installs Caddy and configures it as a reverse proxy to serve The Lounge over HTTPS.
 
-The Lounge will run in a Docker container.
-When you need to manually run a `thelounge` CLI command, run it through the wrapper `thelounge-docker-exec`.
-
-For example, to add a user, SSH in and run:
+Then, to add a user, SSH in and run:
 
 ```shell
-sudo thelounge-docker-exec thelounge add my_new_username
+sudo thelounge add my_new_username
 ```
 
 ## [`download_thelounge_data.yaml`](download_thelounge_data.yaml) and [`upload_thelounge_data.yaml`](upload_thelounge_data.yaml)
 
 These save or restore an archive of your chat logs and user configurations.
 
-## [`tunnel_to_tilde.yaml`](tunnel_to_tilde.yaml) 
+## [`tunnel_to_tilde.yaml`](tunnel_to_tilde.yaml)
 
 This playbook is optional.
 It sets things up so you can use The Lounge to connect to [Tilde Town](https://tilde.town/)'s [IRC network](https://tilde.town/wiki/socializing/irc/), assuming you already have an account there.

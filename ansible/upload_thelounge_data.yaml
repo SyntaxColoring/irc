@@ -9,18 +9,18 @@
     - name: Clear existing The Lounge users
       become: true
       ansible.builtin.file:
-        path: /var/opt/thelounge/users
+        path: /etc/thelounge/users
         state: absent
     - name: Clear existing The Lounge logs
       become: true
       ansible.builtin.file:
-        path: /var/opt/thelounge/logs
+        path: /etc/thelounge/logs
         state: absent
     - name: Upload and extract logs and users from provided archive
       become: true
       ansible.builtin.unarchive:
         src: "{{ thelounge_archive_source }}"
-        dest: /var/opt/thelounge
+        dest: /etc/thelounge
         include:
           - users
           - logs
@@ -30,7 +30,7 @@
     - name: Fix up ownership on extracted files
       become: true
       ansible.builtin.file:
-        path: /var/opt/thelounge
+        path: /etc/thelounge
         owner: thelounge
         group: thelounge
         recurse: true

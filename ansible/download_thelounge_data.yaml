@@ -19,8 +19,8 @@
           become: true
           community.general.archive:
             path:
-              - /var/opt/thelounge/users
-              - /var/opt/thelounge/logs
+              - /etc/thelounge/users
+              - /etc/thelounge/logs
             dest: /tmp/{{ archive_name }}
             mode: u=rw,g=,o=
 

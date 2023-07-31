@@ -51,7 +51,7 @@ The instance is exposed to the Internet. Take appropriate measures to protect it
 
 ## Package updates
 
-The Ubuntu image downloads and installs package updates automatically, unattended. However, sometimes this requires restarting services, and it does *not* automatically do that. Also, The Lounge runs in a Docker container, which needs manual restarts to use  updated images.
+The Ubuntu image downloads and installs package updates automatically, unattended. However, sometimes this requires restarting services, and it does *not* automatically do that.
 
 To make sure the instance is running updated software, you periodically need to either:
 
@@ -60,12 +60,6 @@ To make sure the instance is running updated software, you periodically need to 
   ```bash
   needrestart -r -l # List everything that needs to be restarted.
   needrestart -r a # Restart those things.
-
-  # Restart The Lounge's docker container
-  # to make sure it has the most recent image.
-  # This is only necessary if Docker didn't show up
-  # in the list above.
-  systemctl restart thelounge
   ```
 
 # Destroying the instance (`terraform destroy`)
