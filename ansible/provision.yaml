@@ -9,6 +9,7 @@
         dest: /etc/apt/keyrings/caddy.asc
         mode: u=rw,g=r,o=r
     - name: Add Caddy repository
+      become: true
       ansible.builtin.apt_repository:
         repo: deb [signed-by=/etc/apt/keyrings/caddy.asc] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
 
