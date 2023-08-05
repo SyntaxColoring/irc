@@ -49,18 +49,7 @@ Continue with the instructions in [`../ansible`](../ansible).
 
 The instance is exposed to the Internet. Take appropriate measures to protect it.
 
-## Package updates
-
-The Ubuntu image downloads and installs package updates automatically, unattended. However, sometimes this requires restarting services, and it does *not* automatically do that.
-
-To make sure the instance is running updated software, you periodically need to either:
-
-* Reboot the whole instance, either through `ssh` or the AWS web console.
-* Or, SSH in and run the following:
-  ```bash
-  needrestart -r -l # List everything that needs to be restarted.
-  needrestart -r a # Restart those things.
-  ```
+It's unclear to what extent the instance will automatically download and install security updates, by default. The provisioning steps in [`../ansible`](../ansible) try to configure this more explicitly.
 
 # Destroying the instance (`terraform destroy`)
 

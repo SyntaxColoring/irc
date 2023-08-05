@@ -8,6 +8,14 @@
       become: true
       swap_file_size_mb: '1024'
 
+    - role: hifis.unattended_upgrades
+      become: true
+      unattended_remove_unused_dependencies: true
+      unattended_remove_unused_kernel_packages: true
+      unattended_automatic_reboot: true
+      unattended_ignore_apps_require_restart: true
+      unattended_syslog_enable: true
+
   tasks:
     # Adapted from https://caddyserver.com/docs/install#debian-ubuntu-raspbian.
     - name: Add signing key for Caddy repository
