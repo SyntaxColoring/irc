@@ -78,6 +78,10 @@ resource "aws_instance" "main" {
   ami           = data.aws_ami.main.id
   instance_type = local.instance_type
 
+  root_block_device {
+    volume_type = "gp3"
+  }
+
   subnet_id              = aws_subnet.main.id
   vpc_security_group_ids = [aws_security_group.main.id]
 
