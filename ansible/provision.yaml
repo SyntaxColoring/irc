@@ -10,6 +10,16 @@
 
     - role: hifis.unattended_upgrades
       become: true
+      unattended_origins_patterns:
+        # From the Ubuntu official repositories, just install security upgrades.
+        # This is the hifis.unattended_upgrades default.
+        - 'origin=Ubuntu,archive=${distro_codename}-security,label=Ubuntu'
+        # From the Caddy and Node repositories, install all upgrades.
+        # Ideally, we'd just install security upgrades,
+        # but these repositories aren't split up in a way that supports that kind of filtering.
+        - site=dl.cloudsmith.io
+        - site=deb.nodesource.com
+
       unattended_remove_unused_dependencies: true
       unattended_remove_unused_kernel_packages: true
       unattended_automatic_reboot: true
