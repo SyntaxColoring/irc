@@ -61,7 +61,7 @@
     - name: Install The Lounge
       become: true
       ansible.builtin.apt:
-        deb: https://github.com/thelounge/thelounge-deb/releases/download/v4.4.1/thelounge_4.4.1_all.deb
+        deb: https://github.com/thelounge/thelounge-deb/releases/download/v4.4.3/thelounge_4.4.3_all.deb
 
     - name: Configure Caddy
       become: true
