@@ -106,6 +106,8 @@ resource "aws_security_group" "main" {
   }
   ingress {
     # SSH.
+    # TODO: Unclear if we still need this
+    # with an Instance Connect Endpoint.
     protocol         = "tcp"
     from_port        = 22
     to_port          = 22
@@ -145,8 +147,9 @@ locals {
   any_ipv6 = "::/0"
 }
 
-
-resource "aws_eip" "main" {
-  instance   = aws_instance.main.id
-  depends_on = [aws_internet_gateway.main]
+resource "aws_ec2_instance_connect_endpoint" "main" {
+  subnet_id = aws_subnet.main.id
+  # TODO: Unclear what the implications of this endpoint's security
+  # group are, and whether it should be the same group as the EC2 instance.
+  security_group_ids = [aws_security_group.main.id]
 }

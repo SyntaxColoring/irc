@@ -16,4 +16,6 @@ public_key_path="$6"
     --region "$aws_region" \
     --ssh-public-key "file://$public_key_path"
 
-nc "$network_address" "$port"
+aws ec2-instance-connect open-tunnel \
+    --region "$aws_region" \
+    --instance-id "$ec2_instance_id"
