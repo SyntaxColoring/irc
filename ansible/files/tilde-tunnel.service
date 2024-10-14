@@ -1,6 +1,8 @@
 [Unit]
 Description=Open a tunnel to Tilde Town's IRC
 After=network.target
+# Allow infinite restart attempts.
+StartLimitIntervalSec=0
 
 [Service]
 Type=exec
@@ -12,6 +14,14 @@ ExecStart=/usr/bin/ssh \
     -N \
     -L localhost:6667:localhost:6667 \
     maxpm@tilde.town
+# "Failure" probably means a network problem or Tilde Town went down.
+Restart=on-failure
+RestartSec=5 min
+# When we upgrade to Ubuntu 24.04ish, we can use these newer systemd restart
+# settings to restart with exponential backoff:
+# RestartSec=1
+# RestartMaxDelaySec=10 min
+# RestartSteps=10
 
 [Install]
 WantedBy=multi-user.target
