@@ -9,6 +9,8 @@ locals {
 data "aws_ami" "main" {
   owners = [local.ami_owner]
 
+  include_deprecated = true
+
   filter {
     name   = "name"
     values = [local.ami_name]
