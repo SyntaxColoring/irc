@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -o xtrace
+
+host=$1
+
+rsync \
+    --recursive \
+    --compress \
+    --verbose \
+    "$host":/etc/thelounge/{logs,users,uploads} thelounge_data \

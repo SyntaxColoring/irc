@@ -1,49 +1,25 @@
 # Introduction
 
-This is the code that I use to host my personal instance of [The Lounge](https://thelounge.chat/).
-
+These are scripts that I use to host my personal instance of [The Lounge](https://thelounge.chat/).
 
 # Prerequisites
 
-* Some Ubuntu-ish server.
-  For the exact version that I use, see [`../tf`](../tf).
+* Some recent Debian-ish server.
 * The server must be accessible over the Internet and have some domain pointing to it.
   This is required for automatically setting up TLS.
 
+# Setup
 
-# Example inventory file
+1. `python -m venv venv`
+2. `venv/bin/pip install -r requirements.txt`
+3. Copy `example_inventory.py` to `inventory.py` and fill it in.
 
-```yaml
-thelounge:
-  hosts:
-    thelounge.example.com:
-  vars:
-    ansible_ssh_pipelining: true
+# Script details
 
-    # Currently required.
-    # Passed along to the certificate authority.
-    email: you@example.com
-
-    # Set to true if you're experimenting,
-    # to avoid hitting the certificate authority's rate limits.
-    # The site will be served from an untrusted staging certificate.
-    # https://letsencrypt.org/docs/staging-environment/
-    tls_staging: false
-
-# Optional. Only needed if you're using tunnel_to_tilde.yaml.
-tilde_town:
-  hosts:
-    tilde.town:
-```
-
-
-# Playbook details
-
-
-## [`provision.yaml`](provision.yaml)
+## `provision`
 
 Run this first.
-This turns a bare Ubuntu server into a useful server for The Lounge.
+This turns a bare Debian server into a useful server for The Lounge.
 
 * Installs The Lounge and configures it as a system service.
 * Installs Caddy and configures it as a reverse proxy to serve The Lounge over HTTPS.
@@ -55,15 +31,14 @@ Then, to add a user, SSH in and run:
 sudo thelounge add my_new_username
 ```
 
-## [`download_thelounge_data.yaml`](download_thelounge_data.yaml) and [`upload_thelounge_data.yaml`](upload_thelounge_data.yaml)
+## `data-download` and `data-upload`
 
-These save or restore an archive of your chat logs and user configurations.
+These save or restore an archive of chat logs and user configurations.
 
-## [`tunnel_to_tilde.yaml`](tunnel_to_tilde.yaml)
+## [`tunnel-to-tilde`]
 
-This playbook is optional.
+This is optional.
 It sets things up so you can use The Lounge to connect to [Tilde Town](https://tilde.town/)'s [IRC network](https://tilde.town/wiki/socializing/irc/), assuming you already have an account there.
-
 
 ### Settings for The Lounge
 
@@ -74,7 +49,6 @@ add Tilde Town's network through The Lounge's web UI with these settings:
 * Port: 6667
 * Use secure connection (TLS): Unchecked
 * Authentication: No authentication
-
 
 ### Details
 

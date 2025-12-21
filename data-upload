@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -o xtrace
+
+host=$1
+
+rsync \
+    --recursive \
+    --compress \
+    --chown=thelounge:thelounge \
+    --perms \
+    --chmod=Du=rwx,Dog=,Fu=rw,Fog= \
+    --verbose \
+    thelounge_data/* "$host:/etc/thelounge"

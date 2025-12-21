@@ -1,0 +1,16 @@
+#!/bin/bash
+
+KEY_NAME=tilde_tunnel_ssh_key
+
+if [ ! -f "$KEY_NAME" ]; then
+    ssh-keygen \
+        -f "$KEY_NAME" \
+        -N "" \
+        -C "SSH tunnel from The Lounge to Tilde Town, for IRC"
+else
+    echo "Using preexisting key pair."
+fi
+
+venv/bin/pyinfra \
+    --data "tilde_tunnel_public_key=$KEY_NAME.pub" --data "tilde_tunnel_private_key=$KEY_NAME" \
+    inventory.py tunnel_to_tilde.py

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+venv/bin/pyinfra inventory.py provision_thelounge.py --limit thelounge_servers

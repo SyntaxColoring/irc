@@ -13,7 +13,7 @@ ExecStart=/usr/bin/ssh \
     -o ExitOnForwardFailure=yes \
     -N \
     -L localhost:6667:localhost:6667 \
-    maxpm@tilde.town
+    USER@HOST
 # "Failure" probably means a network problem or Tilde Town went down.
 Restart=on-failure
 RestartSec=5 min

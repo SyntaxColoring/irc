@@ -1,7 +1,9 @@
 venv/
 *.pyc
 
-inventory.yaml
+*.log
+
+inventory.py
 
 thelounge_data*
 tilde_tunnel_ssh_key
