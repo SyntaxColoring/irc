@@ -35,7 +35,7 @@ sudo thelounge add my_new_username
 
 These save or restore an archive of chat logs and user configurations.
 
-## [`tunnel-to-tilde`]
+## `tunnel-to-tilde`
 
 This is optional.
 It sets things up so you can use The Lounge to connect to [Tilde Town](https://tilde.town/)'s [IRC network](https://tilde.town/wiki/socializing/irc/), assuming you already have an account there.
