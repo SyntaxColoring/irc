@@ -9,3 +9,6 @@ rsync \
     --compress \
     --verbose \
     "$host":/etc/thelounge/{logs,users,uploads} thelounge_data \
+
+timestamp=$(TZ=UTC date +%Y-%m-%dT%H-%M-%S)
+tar -cavf "thelounge_data_$timestamp.tar.gz" thelounge_data
