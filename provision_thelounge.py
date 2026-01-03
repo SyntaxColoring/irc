@@ -62,6 +62,14 @@ apt.deb(
     src=THELOUNGE_RELEASE,
 )
 
+patch_thelounge_service_file = files.put(
+    name="Patch The Lounge service file",
+    src="files/thelounge-auto-restart.conf",
+    dest="/etc/systemd/system/thelounge.service.d/thelounge-auto-restart.conf",
+)
+systemd.daemon_reload(
+    _if=[patch_thelounge_service_file.did_change]
+)
 configure_thelounge = files.put(
     name="Configure The Lounge",
     src="files/config.js",
