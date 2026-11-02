@@ -33,7 +33,7 @@ files.download(
     name="Add signing key for Caddy respository",
     src="https://dl.cloudsmith.io/public/caddy/stable/gpg.key",
     dest="/etc/apt/keyrings/caddy.asc",
-    mode="u=rw,g=r,o=r",
+    mode="644",
 )
 apt.repo(
     name="Add Caddy repository",
