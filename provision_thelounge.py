@@ -5,7 +5,8 @@ from pyinfra import host
 from pyinfra.operations import apt, files, server, systemd
 
 
-THELOUNGE_RELEASE = "https://github.com/thelounge/thelounge-deb/releases/download/v4.4.3/thelounge_4.4.3_all.deb"
+THELOUNGE_RELEASE = "https://github.com/thelounge/thelounge-deb/releases/download/v4.6.0-pre.2/thelounge_4.6.0.pre.2_all.deb"
+NODE_MAJOR = "26"
 
 
 host_fqdn = host.data.get("fqdn")
@@ -57,6 +58,28 @@ systemd.service(
     _if=[configure_caddy.did_change]
 )
 
+# Debian's nodejs package is older than The Lounge's minimum, so we replace it with the 3rd-party NodeSource repos.
+# Adapted from https://github.com/nodesource/distributions/wiki/Repository-Manual-Installation.
+apt.key(
+    name="Add signing key for the NodeSource repository",
+    src="https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key",
+    dest="nodesource.gpg",
+)
+apt.sources_file(
+    name="Add the NodeSource repository",
+    filename="nodesource",
+    uris=f"https://deb.nodesource.com/node_{NODE_MAJOR}.x/",
+    suites="nodistro",
+    components="main",
+    signed_by="/etc/apt/keyrings/nodesource.gpg",
+)
+install_nodejs = apt.packages(
+    name="Install Node.js",
+    packages="nodejs",
+    latest=True,
+    update=True,
+)
+
 apt.deb(
     name="Install The Lounge",
     src=THELOUNGE_RELEASE,
@@ -81,7 +104,7 @@ configure_thelounge = files.put(
 systemd.service(
     service="thelounge",
     restarted=True,
-    _if=[configure_thelounge.did_change]
+    _if=lambda: configure_thelounge.did_change() or install_nodejs.did_change(),
 )
 
 files.put(
