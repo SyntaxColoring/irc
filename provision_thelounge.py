@@ -65,7 +65,7 @@ apt.key(
     src="https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key",
     dest="nodesource.gpg",
 )
-apt.sources_file(
+add_nodejs_repo = apt.sources_file(
     name="Add the NodeSource repository",
     filename="nodesource",
     uris=f"https://deb.nodesource.com/node_{NODE_MAJOR}.x/",
@@ -73,11 +73,13 @@ apt.sources_file(
     components="main",
     signed_by="/etc/apt/keyrings/nodesource.gpg",
 )
-install_nodejs = apt.packages(
+apt.update(
+    name="Update apt package lists",
+    _if=[add_nodejs_repo.did_change],
+)
+apt.packages(
     name="Install Node.js",
     packages="nodejs",
-    latest=True,
-    update=True,
 )
 
 apt.deb(
@@ -104,7 +106,7 @@ configure_thelounge = files.put(
 systemd.service(
     service="thelounge",
     restarted=True,
-    _if=lambda: configure_thelounge.did_change() or install_nodejs.did_change(),
+    _if=[configure_thelounge.did_change]
 )
 
 files.put(

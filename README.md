@@ -24,7 +24,7 @@ This turns a bare Debian server into a useful server for The Lounge.
 * Installs the current Node.js LTS from NodeSource.
 * Installs The Lounge and configures it as a system service.
 * Installs Caddy and configures it as a reverse proxy to serve The Lounge over HTTPS.
-* Configures automatic security updates of system packages. (With automatic restarts, when needed.)
+* Configures automatic security updates. (With automatic restarts, when needed.)
 
 Then, to add a user, SSH in and run:
 
